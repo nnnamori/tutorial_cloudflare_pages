@@ -1,12 +1,15 @@
 {
-  "name": "tutorial-cloudflare-pages",
+  "name": "あなたのWorkersプロジェクト名",
   "main": "worker.js",
   "compatibility_date": "2026-07-10",
+  "rules": [
+    { "type": "Text", "globs": ["*.html", "*.css"] }
+  ],
   "d1_databases": [
     {
       "binding": "MY_DB",
-      "database_name": "test_db",
-      "database_id": "b2312270-7044-4be9-8b8e-69e7cc0e9e6f"
+      "database_name": "あなたのD1データベース名",
+      "database_id": "あなたのD1のID"
     }
   ]
 }
