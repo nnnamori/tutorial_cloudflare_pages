@@ -1,13 +1,31 @@
+// @ts-ignore
+import htmlContent from './index.html';
+// @ts-ignore
+import cssContent from './style.css';
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // 1. URLの末尾が /submit かつ POST送信のとき：D1に保存する
+    // 1. トップページ（/）にアクセスされたら、HTMLを画面に表示する
+    if (url.pathname === "/" || url.pathname === "/index.html") {
+      return new Response(htmlContent, {
+        headers: { "Content-Type": "text/html; charset=utf-8" }
+      });
+    }
+
+    // 2. スタイルシート（/style.css）のリクエストが来たら、CSSを返す
+    if (url.pathname === "/style.css") {
+      return new Response(cssContent, {
+        headers: { "Content-Type": "text/css; charset=utf-8" }
+      });
+    }
+
+    // 3. アンケートデータが /submit にPOSTされてきたら、D1に保存する
     if (url.pathname === "/submit" && request.method === "POST") {
       try {
         const data = await request.json();
         
-        // Workersでは「env.MY_DB」でD1にアクセスします
         await env.MY_DB.prepare(
           "INSERT INTO surveys (name, grade, q1, q2, q3, created_at) VALUES (?, ?, ?, ?, ?, ?)"
         )
@@ -29,7 +47,7 @@ export default {
       }
     }
 
-    // 2. それ以外のアクセス：エラー（Workers単体では静的ファイルを配れないため、この設定が必要です）
+    // 4. それ以外のURLは404エラー
     return new Response("Not Found", { status: 404 });
   }
 };
