@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>てすとアンケート</title>
+    <title>ちょうさ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="survey-container">
-    <h2>　ちょうさ　</h2>
+    <h2>てすと</h2>
     <p class="description">以下のアンケートにご協力をお願いいたします。</p>
 
     <form id="surveyForm">
@@ -52,11 +52,11 @@
         </div>
 
         <div class="form-group">
-            <label class="section-title">Q3. 今後一番挑戦したい技術は？（1つ選択）</label>
+            <label class="section-title">Q3. 今後一番挑戦したい技術は？（いずれか1つ）</label>
             <div class="checkbox-group">
-                <label class="checkbox-label"><input type="radio" name="q3" value="Cloudflare Workers" required> Cloudflare</label>
+                <label class="checkbox-label"><input type="radio" name="q3" value="Cloudflare" required> Cloudflare</label>
                 <label class="checkbox-label"><input type="radio" name="q3" value="AI・LLM連携"> AI・LLM連携</label>
-                <label class="checkbox-label"><input type="radio" name="q3" value="スマホアプリ開発"> アプリ開発</label>
+                <label class="checkbox-label"><input type="radio" name="q3" value="アプリ開発"> アプリ開発</label>
                 <label class="checkbox-label"><input type="radio" name="q3" value="特になし"> 特になし</label>
             </div>
         </div>
@@ -69,43 +69,44 @@
     document.getElementById('surveyForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 複数選択（チェックボックス）の値を配列で取得する関数
-        const getCheckedValues = (name) => {
+        // 💡 チェックボックス（複数）の値をカンマ区切りの文字列にする関数
+        const getCheckboxValues = (name) => {
             const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`);
-            return Array.from(checkboxes).map(cb => cb.value);
+            return Array.from(checkboxes).map(cb => cb.value).join(',');
         };
 
-        // まとめてDBに投げるデータ構造を作成
+        // 💡 ラジオボタン（単一）の値を取得する関数
+        const getRadioValue = (name) => {
+            const checkedRadio = document.querySelector(`input[name="${name}"]:checked`);
+            return checkedRadio ? checkedRadio.value : "";
+        };
+
         const surveyData = {
             name: document.getElementById('name').value,
-            grade: parseInt(document.getElementById('grade').value, 10), // スライダーの値を数値化
-            q1_answers: getCheckedValues('q1'), // 問1の回答（配列）
-            q2_answers: getCheckedValues('q2'), // 問2の回答（配列）
-            q3_answers: getCheckedValues('q3'), // 問3の回答（配列）
+            grade: parseInt(document.getElementById('grade').value, 10),
+            q1_answer: getCheckboxValues('q1'), // カンマ区切りの文字列
+            q2_answer: getCheckboxValues('q2'), // カンマ区切りの文字列
+            q3_answer: getRadioValue('q3'),    // 単一の文字列
             timestamp: new Date().toISOString()
         };
 
-        // デバッグ用（送信するデータをコンソールで確認用）
-        console.log('送信データ:', surveyData);
-
-        // ⚠️ ここにあなたのCloudflare WorkersのURLを貼り付けてください
         try {
             const response = await fetch('/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(surveyData)
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(surveyData)
             });
-        
+            
             if (response.ok) {
-                alert('ご回答ありがとうございました！データが保存されました。');
+                alert('ご回答ありがとうございました！');
                 document.getElementById('surveyForm').reset();
             } else {
-                alert('送信に失敗しました。');
+                alert('送信に失敗しました。（サーバーエラー）');
             }
         } catch (error) {
-        alert('通信エラーが発生しました。');
+            alert('通信エラーが発生しました。');
         }
-});
+    });
 </script>
 </body>
 </html>
