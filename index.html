@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>てすとアンケート</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="survey-container">
+    <h2>Academic Survey</h2>
+    <p class="description">以下のアンケートにご協力をお願いいたします。</p>
+
+    <form id="surveyForm">
+        <div class="form-group">
+            <label class="section-title" for="name">お名前（またはニックネーム）</label>
+            <input type="text" id="name" placeholder="例: 山田 太郎" required>
+        </div>
+
+        <div class="form-group">
+            <label class="section-title">学年</label>
+            <div class="slider-container">
+                <input type="range" id="grade" min="1" max="4" step="1" value="1">
+                <div class="slider-labels">
+                    <span>1年</span>
+                    <span>2年</span>
+                    <span>3年</span>
+                    <span>4年</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="section-title">Q1. 普段よく使うプログラミング言語は？（複数選択可）</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label"><input type="checkbox" name="q1" value="HTML/CSS"> HTML / CSS</label>
+                <label class="checkbox-label"><input type="checkbox" name="q1" value="JavaScript"> JavaScript</label>
+                <label class="checkbox-label"><input type="checkbox" name="q1" value="Python"> Python</label>
+                <label class="checkbox-label"><input type="checkbox" name="q1" value="その他"> その他</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="section-title">Q2. 開発で重視するポイントは？（複数選択可）</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label"><input type="checkbox" name="q2" value="見た目の美しさ"> 見た目の美しさ</label>
+                <label class="checkbox-label"><input type="checkbox" name="q2" value="コードの綺麗さ"> コードの綺麗さ</label>
+                <label class="checkbox-label"><input type="checkbox" name="q2" value="表示のスピード"> 表示のスピード</label>
+                <label class="checkbox-label"><input type="checkbox" name="q2" value="圧倒的なコスパ"> 圧倒的なコスパ</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="section-title">Q3. 今後挑戦したい技術は？（複数選択可）</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label"><input type="checkbox" name="q3" value="Cloudflare Workers"> Cloudflare</label>
+                <label class="checkbox-label"><input type="checkbox" name="q3" value="AI・LLM連携"> AI・LLM連携</label>
+                <label class="checkbox-label"><input type="checkbox" name="q3" value="スマホアプリ開発"> アプリ開発</label>
+                <label class="checkbox-label"><input type="checkbox" name="q3" value="特になし"> 特になし</label>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">回答を送信する</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // 複数選択（チェックボックス）の値を配列で取得する関数
+        const getCheckedValues = (name) => {
+            const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`);
+            return Array.from(checkboxes).map(cb => cb.value);
+        };
+
+        // まとめてDBに投げるデータ構造を作成
+        const surveyData = {
+            name: document.getElementById('name').value,
+            grade: parseInt(document.getElementById('grade').value, 10), // スライダーの値を数値化
+            q1_answers: getCheckedValues('q1'), // 問1の回答（配列）
+            q2_answers: getCheckedValues('q2'), // 問2の回答（配列）
+            q3_answers: getCheckedValues('q3'), // 問3の回答（配列）
+            timestamp: new Date().toISOString()
+        };
+
+        // デバッグ用（送信するデータをコンソールで確認用）
+        console.log('送信データ:', surveyData);
+
+        // ⚠️ ここにあなたのCloudflare WorkersのURLを貼り付けてください
+        const WORKER_URL = 'https://your-worker.xxxx.workers.dev/submit';
+
+        try {
+            const response = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(surveyData)
+            });
+            
+            if (response.ok) {
+                alert('ご回答ありがとうございました！データは正常に保存されました。');
+                document.getElementById('surveyForm').reset();
+            } else {
+                alert('送信に失敗しました。ステータスコード: ' + response.status);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('通信エラーが発生しました。Workersが起動しているか確認してください。');
+        }
+    });
+</script>
+</body>
+</html>
