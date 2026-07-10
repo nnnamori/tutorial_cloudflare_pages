@@ -7,34 +7,35 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // 1. トップページ（/）にアクセスされたら、HTMLを画面に表示する
+    // 1. トップ画面の表示
     if (url.pathname === "/" || url.pathname === "/index.html") {
       return new Response(htmlContent, {
         headers: { "Content-Type": "text/html; charset=utf-8" }
       });
     }
 
-    // 2. スタイルシート（/style.css）のリクエストが来たら、CSSを返す
+    // 2. CSSの表示
     if (url.pathname === "/style.css") {
       return new Response(cssContent, {
         headers: { "Content-Type": "text/css; charset=utf-8" }
       });
     }
 
-    // 3. アンケートデータが /submit にPOSTされてきたら、D1に保存する
+    // 3. データ送信（/submit）の処理
     if (url.pathname === "/submit" && request.method === "POST") {
       try {
-        const data = await request.json();
+        const data = await request.request ? await request.json() : await request.json();
         
+        // D1へ保存を実行
         await env.MY_DB.prepare(
           "INSERT INTO surveys (name, grade, q1, q2, q3, created_at) VALUES (?, ?, ?, ?, ?, ?)"
         )
         .bind(
           data.name, 
           data.grade, 
-          data.q1_answer, 
-          data.q2_answer, 
-          data.q3_answer, 
+          data.q1_answer, // カンマ区切りの文字列がそのまま入ります
+          data.q2_answer, // カンマ区切りの文字列がそのまま入ります
+          data.q3_answer, // ラジオボタンの文字列が入ります
           data.timestamp
         )
         .run();
@@ -47,7 +48,6 @@ export default {
       }
     }
 
-    // 4. それ以外のURLは404エラー
     return new Response("Not Found", { status: 404 });
   }
 };
