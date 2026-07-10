@@ -89,26 +89,23 @@
         console.log('送信データ:', surveyData);
 
         // ⚠️ ここにあなたのCloudflare WorkersのURLを貼り付けてください
-        const WORKER_URL = 'https://your-worker.xxxx.workers.dev/submit';
-
         try {
-            const response = await fetch(WORKER_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(surveyData)
+            const response = await fetch('/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(surveyData)
             });
-            
+        
             if (response.ok) {
-                alert('ご回答ありがとうございました！データは正常に保存されました。');
+                alert('ご回答ありがとうございました！データが保存されました。');
                 document.getElementById('surveyForm').reset();
             } else {
-                alert('送信に失敗しました。ステータスコード: ' + response.status);
+                alert('送信に失敗しました。');
             }
         } catch (error) {
-            console.error('Error:', error);
-            alert('通信エラーが発生しました。Workersが起動しているか確認してください。');
+        alert('通信エラーが発生しました。');
         }
-    });
+});
 </script>
 </body>
 </html>
