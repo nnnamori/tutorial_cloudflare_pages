@@ -1,0 +1,2 @@
+# tutorial_cloudflare_pages
+githubのリポジトリ作成からCloudflareでの集計サイトページ公開まで
