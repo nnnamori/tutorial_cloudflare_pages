@@ -1,3 +1,3 @@
 # tutorial_cloudflare_pages
 githubのリポジトリ作成からCloudflare Workersでの集計サイトページ公開まで
-身内用
+自己学習用
